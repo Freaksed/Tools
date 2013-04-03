@@ -1204,6 +1204,11 @@ public class PrefabPool
     /// </returns>
     internal bool DespawnInstance(Transform xform)
     {
+        return DespawnInstance(xform, true);
+    }
+
+    internal bool DespawnInstance(Transform xform, bool sendEventMessage)
+    { 
         if (this.logMessages)
             Debug.Log(string.Format("SpawnPool {0} ({1}): Despawning '{2}'",
                                    this.spawnPool.poolName,
@@ -1217,7 +1222,8 @@ public class PrefabPool
         // Notify instance of event OnDespawned for custom code additions.
         //   This is done before handling the deactivate and enqueue incase 
         //   there the user introduces an unforseen issue.
-        xform.gameObject.BroadcastMessage("OnDespawned",
+        if (sendEventMessage)
+            xform.gameObject.BroadcastMessage("OnDespawned",
                                       SendMessageOptions.DontRequireReceiver);
 
         // Deactivate the instance and all children
@@ -1594,7 +1600,7 @@ public class PrefabPool
                 // This will parent, position and orient the instance
                 //   under the SpawnPool.group
                 inst = this.SpawnNew();
-                this.DespawnInstance(inst);
+                this.DespawnInstance(inst, false);
             }
             
             // Restore the previous setting

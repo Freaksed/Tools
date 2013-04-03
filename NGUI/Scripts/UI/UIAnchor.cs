@@ -26,7 +26,7 @@ public class UIAnchor : MonoBehaviour
 		Center,
 	}
 
-	bool mIsWindows = false;
+	bool mNeedsHalfPixelOffset = false;
 
 	/// <summary>
 	/// Camera used to determine the anchor bounds. Set automatically if none was specified.
@@ -84,9 +84,12 @@ public class UIAnchor : MonoBehaviour
 	void Start ()
 	{
 		mRoot = NGUITools.FindInParents<UIRoot>(gameObject);
-		mIsWindows = (Application.platform == RuntimePlatform.WindowsPlayer ||
+		mNeedsHalfPixelOffset = (Application.platform == RuntimePlatform.WindowsPlayer ||
 			Application.platform == RuntimePlatform.WindowsWebPlayer ||
 			Application.platform == RuntimePlatform.WindowsEditor);
+
+		// Only DirectX 9 needs the half-pixel offset
+		if (mNeedsHalfPixelOffset) mNeedsHalfPixelOffset = (SystemInfo.graphicsShaderLevel < 40);
 
 		if (uiCamera == null) uiCamera = NGUITools.FindCameraForLayer(gameObject.layer);
 		Update();
@@ -178,7 +181,7 @@ public class UIAnchor : MonoBehaviour
 				v.x = Mathf.Round(v.x);
 				v.y = Mathf.Round(v.y);
 
-				if (halfPixelOffset && mIsWindows)
+				if (halfPixelOffset && mNeedsHalfPixelOffset)
 				{
 					v.x -= 0.5f;
 					v.y += 0.5f;
